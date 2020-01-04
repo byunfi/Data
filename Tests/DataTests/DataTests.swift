@@ -1,15 +1,21 @@
 import XCTest
 @testable import Data
+import Moya
+import Domain
+import RxTest
+import RxBlocking
 
 final class DataTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(Data().text, "Hello, World!")
+    
+    func testMonncellHomeNetwok() {
+        let net = MonncellNetwok(provider: MoyaProvider<MooncellService>())
+        let homeData = try! net.fetchHomeData().toBlocking(timeout: 5).first()!
+        XCTAssert(homeData.count == 2)
+        let eventLists = try! net.fetchEventList().toBlocking(timeout: 5).first()!
+        XCTAssert(eventLists.count > 1)
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testMonncellHomeNetwok", testMonncellHomeNetwok),
     ]
 }
