@@ -1,50 +1,53 @@
 //
-//  MonncellHomeNetwok.swift
+//  MooncellNetwork.swift
 //  
 //
-//  Created by byunfi on 2020/1/4.
+//  Created by byunfi on 2020/1/8.
 //
 
 import Foundation
-import Moya
-import RxMoya
-import RxSwift
 import Domain
+import Moya
 
-final public class MooncellNetwork {
-    private let provider: MoyaProvider<MooncellService>
+public struct MooncellNetwork {
+    private let provider = MoyaProvider<MooncellAPI>()
     
-    init(provider: MoyaProvider<MooncellService>) {
-        self.provider = provider
-    }
-    
-    public func fetchHomeData() -> Single<[CLHomeData]> {
-        provider.rx.request(.home).map { response in
-            guard let extractor = try? MooncellHomeExtractor(response.data) else {
-                fatalError("Cannot decode Mooncell page: <首页>.")
+    public func homeData(completion: @escaping (Result<MCHomeSourceData, MoyaError>) -> Void) {
+        provider.request(.home) { result in
+            let newResult = result.map { response -> MCHomeSourceData in
+                guard let parser = try? MooncellHomeParser(response.data) else {
+                    fatalError("Cannot decode Mooncell page: <首页>.")
+                }
+                
+                func parseData(targetType: MooncellHomeParser.SourceType) -> MCHomeData {
+                    let newCards = parser.parse(in: .newCards, target: targetType)
+                    let events = parser.parse(in: .events, target: targetType)
+                    let summons = parser.parse(in: .summons, target: targetType)
+                    let masterMissions = targetType == .CN ?
+                        [parser.parseMasterMission(target: .CN), parser.parseMasterMission(target: .nextCN)] :
+                        [parser.parseMasterMission(target: .JP)]
+                    return MCHomeData(events: events,
+                                      summons: summons,
+                                      recentlyUpdatedData: newCards,
+                                      masterMissions: masterMissions)
+                }
+                let cnData = parseData(targetType: .CN)
+                let jpData = parseData(targetType: .JP)
+                return MCHomeSourceData(cn: cnData, jp: jpData)
             }
-            
-            func extractData(targetType: MooncellExtractor.SourceType) -> CLHomeData {
-                let recentGameData = extractor.extract(in: .newCards, target: targetType)
-                let events = extractor.extract(in: .events, target: targetType)
-                let summons = extractor.extract(in: .summons, target: targetType)
-                let masterMission = targetType == .CN ? [
-                extractor.extractMasterMission(target: .CN),
-                extractor.extractMasterMission(target: .nextCN)] : [extractor.extractMasterMission(target: .JP)]
-                return CLHomeData(sourceType: CLHomeSourceType(rawValue: targetType.description.uppercased())!, events: events, summons: summons, recentlyUpdatedData: recentGameData, masterMissions: masterMission)
-            }
-            let cnData = extractData(targetType: .CN)
-            let jpData = extractData(targetType: .JP)
-            return [cnData, jpData]
+            completion(newResult)
         }
     }
     
-    public func fetchEventList() -> Single<[CLEventListItem]> {
-        provider.rx.request(.eventList).map { response in
-            guard let extractor = try? MooncellEventListExtractor(response.data) else {
-                fatalError("Cannot decode Mooncell page:  <活动一览>.")
+    public func eventList(completion: @escaping (Result<[MCEventListItem], MoyaError>) -> Void) {
+        provider.request(.eventList) { result in
+            let newResult = result.map { response -> [MCEventListItem] in
+                guard let parser = try? MooncellEventListParser(response.data) else {
+                    fatalError("Cannot decode Mooncell page: <活动一览>.")
+                }
+                return parser.parseFutureEvents()
             }
-            return extractor.extarctFutureEvents()
+            completion(newResult)
         }
     }
 }

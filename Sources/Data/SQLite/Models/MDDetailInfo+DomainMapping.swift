@@ -8,8 +8,8 @@
 import Foundation
 import Domain
 
-extension CLEffect {
-    static func map(info: MDDetailInfo) -> [CLEffect] {
-        return zip(info.detail, info.value).map(CLEffect.init)
+extension ServantActionEffect {
+    static func map(info: MDDetailInfo) -> [ServantActionEffect] {
+        return zip(info.detail, info.value).map(ServantActionEffect.init)
     }
 }

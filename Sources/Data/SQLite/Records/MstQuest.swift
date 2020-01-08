@@ -60,7 +60,7 @@ public struct MstQuest: FetchableRecord {
 
 extension MstQuest: TableRecord {
     public static var databaseTableName: String { "MstQuest" }
-    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("name") ?? Column("jpName")]
+    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("name"), Column("jpName")]
 }
 
 //extension MstQuest: FetchableRecord {

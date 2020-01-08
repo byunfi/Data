@@ -21,7 +21,7 @@ public struct MstTreasureDevice {
 
 extension MstTreasureDevice: TableRecord {
     public static var databaseTableName: String { "MstTreasureDevice" }
-    public static var databaseSelection: [SQLSelectable] = [Column("jpName"), Column("rank"), Column("maxLv"), Column("typeText"), Column("name")]
+    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("jpName"), Column("rank"), Column("maxLv"), Column("typeText"), Column("name")]
     
     public static let detail = hasOne(MstTreasureDeviceDetail.self)
     public static let lv = hasOne(MstTreasureDeviceLv.self)

@@ -9,8 +9,8 @@ import Foundation
 import Kanna
 import Domain
 
-// MARK: - MooncellExtractor
-class MooncellExtractor {
+// MARK: - MooncellParser
+class MooncellParser {
     
     enum SourceType: String, CustomStringConvertible {
         case CN = "cn"          // 国服数据
@@ -34,8 +34,8 @@ class MooncellExtractor {
     }
 }
 
-// MARK: - MooncellHomeExtractor
-class MooncellHomeExtractor: MooncellExtractor {
+// MARK: - MooncellHomeParser
+class MooncellHomeParser: MooncellParser {
     
     enum ContentSection: String, CustomStringConvertible {
         case events = "home-events"         // 活动（国服、日服）
@@ -47,13 +47,13 @@ class MooncellHomeExtractor: MooncellExtractor {
     }
     
     /// Extract target source in the section.
-    /// - Parameter contentSection: Pre-defined mark for page to be extracted.
+    /// - Parameter contentSection: Pre-defined mark for page to be parseed.
     /// - Parameter sourceType: target source.
-    func extract(in contentSection: ContentSection, target sourceType: SourceType) -> [CLHomeBox] {
+    func parse(in contentSection: ContentSection, target sourceType: SourceType) -> [MCHomeBox] {
         let containerDivXPath = "//*[@id=\"\(contentSection)-container-\(sourceType)\"]/div"
         let subtitleXPath = "self::div[@class=\"\(contentSection)-subtitle\"]"
         var subtitle = ""
-        var boxs: [CLHomeBox] = []
+        var boxs: [MCHomeBox] = []
         for div in html.xpath(containerDivXPath) {
             // Find content section name.
             if let text = div.xpath(subtitleXPath).first?.text {
@@ -68,20 +68,20 @@ class MooncellHomeExtractor: MooncellExtractor {
                     subtitle = ""
                     continue
                 }
-                let cards = aObject.map { a -> CLCard in
+                let cards = aObject.map { a -> MCCard in
                     let title = a.xpath("@title").first?.text ?? ""
-                    let href = a.xpath("@href").first?.text.map { MooncellExtractor.domain + $0 }
-                    let imageLink = a.xpath("img/@data-src").first?.text.map { MooncellExtractor.domain + $0 }
-                    return CLCard(title: title, imageSrc: imageLink!, href: href)
+                    let href = a.xpath("@href").first?.text.map { MooncellParser.domain + $0 }
+                    let imageLink = a.xpath("img/@data-src").first?.text.map { MooncellParser.domain + $0 }
+                    return MCCard(title: title, imageSrc: imageLink!, href: href)
                 }
-                let box = CLHomeBox(sectionName: subtitle, cards: cards)
+                let box = MCHomeBox(sectionName: subtitle, cards: cards)
                 boxs.append(box)
             }
         }
         return boxs
     }
     
-    func extractMasterMission(target sourceType: SourceType) -> CLMasterMission {
+    func parseMasterMission(target sourceType: SourceType) -> MCMasterMission {
         let containerPXPath = "//*[@id=\"\(ContentSection.weeklyMission)-container-\(sourceType)\"]/p"
         var descriptions: [String] = []
         var date = ""
@@ -97,26 +97,26 @@ class MooncellHomeExtractor: MooncellExtractor {
             }
         }
         let sectionName = sourceType == .nextCN ? "下周预任务预测" : "本周任务"
-        let masterMission = CLMasterMission(sectionName: sectionName, date: date, missions: descriptions)
+        let masterMission = MCMasterMission(sectionName: sectionName, date: date, missions: descriptions)
         return masterMission
     }
 }
 
-// MARK: - MooncellEventListExtractor
-class MooncellEventListExtractor: MooncellExtractor {
+// MARK: - MooncellEventListParser
+class MooncellEventListParser: MooncellParser {
     
-    func extarctFutureEvents() -> [CLEventListItem] {
+    func parseFutureEvents() -> [MCEventListItem] {
         let trXPath = #"//*[@id="mw-content-text"]/div/table[1]/tbody/tr"#
-        return html.xpath(trXPath).dropFirst().map { tr -> CLEventListItem in
+        return html.xpath(trXPath).dropFirst().map { tr -> MCEventListItem in
             let duration = tr.xpath("td[1]/text()")
             let openDate = duration[0].text!
             let closeDate = duration[1].text!.rstrip()
-            let href = tr.xpath("td[2]/a/@href").first?.text.map { MooncellExtractor.domain + $0 }
+            let href = tr.xpath("td[2]/a/@href").first?.text.map { MooncellParser.domain + $0 }
             let name = tr.xpath("td[2]/a/@title")[0].text!
-            let imageSrc = tr.xpath("td[3]/a/img/@data-src").first?.text.map { MooncellExtractor.domain + $0 } ?? ""
+            let imageSrc = tr.xpath("td[3]/a/img/@data-src").first?.text.map { MooncellParser.domain + $0 } ?? ""
             let type = tr.xpath("td[4]/text()").first!.text!.rstrip()
             let officialHref = tr.xpath("td[4]/a/@href").first?.text
-            return CLEventListItem(openDate: String(openDate), closeDate: String(closeDate), name: name, href: href, imageSrc: imageSrc, type: type, officialHref: officialHref)
+            return MCEventListItem(openDate: String(openDate), closeDate: String(closeDate), name: name, href: href, imageSrc: imageSrc, type: type, officialHref: officialHref)
         }
     }
 }
