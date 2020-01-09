@@ -12,8 +12,8 @@ import Moya
 public struct MooncellNetwork {
     private let provider = MoyaProvider<MooncellAPI>()
     
-    public func homeData(completion: @escaping (Result<MCHomeSourceData, MoyaError>) -> Void) {
-        provider.request(.home) { result in
+    public func homeData(completion: @escaping (Result<MCHomeSourceData, MoyaError>) -> Void) -> Cancellable {
+        return provider.request(.home) { result in
             let newResult = result.map { response -> MCHomeSourceData in
                 guard let parser = try? MooncellHomeParser(response.data) else {
                     fatalError("Cannot decode Mooncell page: <首页>.")
@@ -39,7 +39,7 @@ public struct MooncellNetwork {
         }
     }
     
-    public func eventList(completion: @escaping (Result<[MCEventListItem], MoyaError>) -> Void) {
+    public func eventList(completion: @escaping (Result<[MCEventListItem], MoyaError>) -> Void) -> Cancellable {
         provider.request(.eventList) { result in
             let newResult = result.map { response -> [MCEventListItem] in
                 guard let parser = try? MooncellEventListParser(response.data) else {

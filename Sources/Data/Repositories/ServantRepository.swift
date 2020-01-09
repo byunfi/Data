@@ -54,7 +54,20 @@ final class DefaultServantRepository: ServantRepository {
     }
     
     func servantDetail(_ servantId: Int) -> Observable<ServantDetail> {
-        return Observable.never()
+        Observable<ServantDetail>.create { [weak self] observer in
+            guard let self = self else {
+                fatalError("self deinted.")
+            }
+            do {
+                let info = try self.masterData.servant(svtId: servantId)
+                let servantDetail = ServantDetail.map(info: info, gameURLService: self.gameURLService)
+                observer.onNext(servantDetail)
+            } catch (let error) {
+                observer.onError(error)
+            }
+            
+            return Disposables.create()
+        }
     }
     
     func servantVoices(_ servantId: Int) -> Observable<[ServantVoice]> {
@@ -65,9 +78,6 @@ final class DefaultServantRepository: ServantRepository {
         return Observable.never()
     }
 }
-
-
-
 
 extension ServantGender: ColumnQuery {
     var fieldName: String {

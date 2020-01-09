@@ -37,7 +37,7 @@ public class DefaultMooncellRepository: MooncellRepository {
                     self.isDirtyHomeCache = true
                 }
             }
-            self.network.homeData { result in
+            let task = self.network.homeData { result in
                 switch result {
                 case .success(let homeData):
                     let cnData = GameRecentData.map(homeData: homeData.cn)
@@ -51,7 +51,9 @@ public class DefaultMooncellRepository: MooncellRepository {
                     single(.error(error))
                 }
             }
-            return Disposables.create()
+            return Disposables.create {
+                task.cancel()
+            }
         }
     }
     
@@ -60,7 +62,7 @@ public class DefaultMooncellRepository: MooncellRepository {
             guard let self = self else {
                 fatalError("self deinted.")
             }
-            self.network.eventList { result in
+            let task = self.network.eventList { result in
                 switch result {
                 case .success(let events):
                     let gameEvent = events.map(GameEventDetail.map(item:))
@@ -69,7 +71,9 @@ public class DefaultMooncellRepository: MooncellRepository {
                     single(.error(error))
                 }
             }
-            return Disposables.create()
+            return Disposables.create {
+                task.cancel()
+            }
         }
     }
     
