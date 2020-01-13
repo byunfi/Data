@@ -8,7 +8,7 @@
 import Foundation
 import GRDB
 
-public struct MstQuest: FetchableRecord {
+public struct MstQuest {
     public let id: Int
     public let jpName: String
     public let type: Int
@@ -31,61 +31,13 @@ public struct MstQuest: FetchableRecord {
     public let openedAt: Int
     public let closedAt: Int
     public let name: String
-    
-    public init(row: Row) {
-        id = row["id"]
-        jpName = row["jpName"]
-        type = row["type"]
-        consumeType = row["consumeType"]
-        actConsume = row["actConsume"]
-        spotId = row["spotId"]
-        giftId = row["giftId"]
-        priority = row["priority"]
-        bannerType = row["bannerType"]
-        bannerId = row["bannerId"]
-        iconId = row["iconId"]
-        charaIconId = row["charaIconId"]
-        giftIconId = row["giftIconId"]
-        afterClear = row["afterClear"]
-        chapterId = row["chapterId"]
-        chapterSubId = row["chapterSubId"]
-        chapterSubStr = row["chapterSubStr"]
-        recommendLv = row["recommendLv"]
-        flag = row["flag"]
-        openedAt = row["openedAt"]
-        closedAt = row["closedAt"]
-        name = row["name"]
+}
+
+extension MstQuest: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.id, .jpName, .type, .consumeType, .actConsume, .spotId, .giftId, .priority, .bannerType, .bannerId, .iconId, .charaIconId, .giftIconId, .afterClear, .chapterId, .chapterSubId, .chapterSubStr, .recommendLv, .flag, .openedAt, .closedAt, .name]
+        return codingKeys
     }
 }
 
-extension MstQuest: TableRecord {
-    public static var databaseTableName: String { "MstQuest" }
-    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("name"), Column("jpName")]
-}
-
-//extension MstQuest: FetchableRecord {
-//    init(row: Row) {
-//        id = row["id"]
-//        jpName = row["jpName"]
-//        type = row["type"]
-//        consumeType = row["consumeType"]
-//        actConsume = row["actConsume"]
-//        spotId = row["spotId"]
-//        giftId = row["giftId"]
-//        priority = row["priority"]
-//        bannerType = row["bannerType"]
-//        bannerId = row["bannerId"]
-//        iconId = row["iconId"]
-//        charaIconId = row["charaIconId"]
-//        giftIconId = row["giftIconId"]
-//        afterClear = row["afterClear"]
-//        chapterId = row["chapterId"]
-//        chapterSubId = row["chapterSubId"]
-//        chapterSubStr = row["chapterSubStr"]
-//        recommendLv = row["recommendLv"]
-//        flag = row["flag"]
-//        openedAt = row["openedAt"]
-//        closedAt = row["closedAt"]
-//        name = row["name"]
-//    }
-//}
+extension MstQuest: FetchableRecord {}

@@ -19,19 +19,11 @@ public struct MstTreasureDeviceLv {
     public let tdPointDef: Int
 }
 
-extension MstTreasureDeviceLv: TableRecord {
-    public static var databaseTableName: String { "MstTreasureDeviceLv" }
-}
-
-extension MstTreasureDeviceLv: FetchableRecord {
-    public init(row: Row) {
-        treaureDeviceId = row["treaureDeviceId"]
-        lv = row["lv"]
-        tdPoint = row["tdPoint"]
-        tdPointQ = row["tdPointQ"]
-        tdPointA = row["tdPointA"]
-        tdPointB = row["tdPointB"]
-        tdPointEx = row["tdPointEx"]
-        tdPointDef = row["tdPointDef"]
+extension MstTreasureDeviceLv: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.treaureDeviceId, .lv, .tdPoint, .tdPointQ, .tdPointA, .tdPointB, .tdPointEx, .tdPointDef]
+        return codingKeys
     }
 }
+
+extension MstTreasureDeviceLv: FetchableRecord {}

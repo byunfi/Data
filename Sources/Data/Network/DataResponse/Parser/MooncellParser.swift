@@ -1,51 +1,51 @@
 //
 //  MooncellHomeExtarctor.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/4.
 //
 
+import Domain
 import Foundation
 import Kanna
-import Domain
 
 // MARK: - MooncellParser
+
 class MooncellParser {
-    
     enum SourceType: String, CustomStringConvertible {
-        case CN = "cn"          // 国服数据
-        case JP  = "jp"         // 日服数据
-        case nextCN = "next"    // 国服预测
-        
+        case CN = "cn" // 国服数据
+        case JP = "jp" // 日服数据
+        case nextCN = "next" // 国服预测
+
         public var description: String { rawValue }
     }
-    
+
     /// Host URL string of `Mooncell`.
     fileprivate static let domain = "https://fgo.wiki"
-    
+
     fileprivate let html: HTMLDocument
-    
+
     init(_ data: Data, encoding: String.Encoding = .utf8) throws {
         html = try HTML(html: data, encoding: encoding)
     }
-    
+
     init(_ text: String, encoding: String.Encoding = .utf8) throws {
         html = try HTML(html: text, encoding: encoding)
     }
 }
 
 // MARK: - MooncellHomeParser
+
 class MooncellHomeParser: MooncellParser {
-    
     enum ContentSection: String, CustomStringConvertible {
-        case events = "home-events"         // 活动（国服、日服）
-        case summons = "home-summons"       // 卡池（国服、日服）
-        case newCards = "new-cards"             // 新增内容（国服、日服）x（从者强化、从者、概念礼装、指令纹章）
-        case weeklyMission = "weekly-mission"   // 御主任务（国服、日服、国服预测）
+        case events = "home-events" // 活动（国服、日服）
+        case summons = "home-summons" // 卡池（国服、日服）
+        case newCards = "new-cards" // 新增内容（国服、日服）x（从者强化、从者、概念礼装、指令纹章）
+        case weeklyMission = "weekly-mission" // 御主任务（国服、日服、国服预测）
 
         public var description: String { rawValue }
     }
-    
+
     /// Extract target source in the section.
     /// - Parameter contentSection: Pre-defined mark for page to be parseed.
     /// - Parameter sourceType: target source.
@@ -60,7 +60,7 @@ class MooncellHomeParser: MooncellParser {
                 subtitle = text
                 continue
             }
-            
+
             if let className = div.className, className.starts(with: contentSection.rawValue) {
                 let aXPath = contentSection == .events ? #"span[@class="nomobile"]/a"# : "a"
                 let aObject = div.xpath(aXPath)
@@ -80,7 +80,7 @@ class MooncellHomeParser: MooncellParser {
         }
         return boxs
     }
-    
+
     func parseMasterMission(target sourceType: SourceType) -> MCMasterMission {
         let containerPXPath = "//*[@id=\"\(ContentSection.weeklyMission)-container-\(sourceType)\"]/p"
         var descriptions: [String] = []
@@ -103,8 +103,8 @@ class MooncellHomeParser: MooncellParser {
 }
 
 // MARK: - MooncellEventListParser
+
 class MooncellEventListParser: MooncellParser {
-    
     func parseFutureEvents() -> [MCEventListItem] {
         let trXPath = #"//*[@id="mw-content-text"]/div/table[1]/tbody/tr"#
         return html.xpath(trXPath).dropFirst().map { tr -> MCEventListItem in
@@ -123,7 +123,7 @@ class MooncellEventListParser: MooncellParser {
 
 private extension String {
     func rstrip() -> Self {
-        if self[index(before: self.endIndex)] == "\n" {
+        if self[index(before: endIndex)] == "\n" {
             return String(dropLast())
         }
         return self

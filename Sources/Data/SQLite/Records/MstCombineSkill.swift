@@ -16,16 +16,11 @@ public struct MstCombineSkill {
     public let qp: Int
 }
 
-extension MstCombineSkill: TableRecord {
-    public static var databaseTableName: String { "MstCombineSkill" }
-}
-
-extension MstCombineSkill: FetchableRecord {
-    public init(row: Row) {
-        itemIds = row["itemIds"]
-        itemNums = row["itemNums"]
-        id = row["id"]
-        skillLv = row["skillLv"]
-        qp = row["qp"]
+extension MstCombineSkill: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.itemIds, .itemNums, .id, .skillLv, .qp]
+        return codingKeys
     }
 }
+
+extension MstCombineSkill: FetchableRecord {}

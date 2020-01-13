@@ -1,6 +1,6 @@
 //
 //  MCEventListItem.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/8.
 //

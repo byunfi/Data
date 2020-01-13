@@ -1,12 +1,12 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/8.
 //
 
-import Foundation
 import Domain
+import Foundation
 
 extension GameRecentData {
     static func map(homeData: MCHomeData) -> GameRecentData {
@@ -15,5 +15,4 @@ extension GameRecentData {
                        masterMissions: homeData.masterMissions.map(GameMasterMission.map(mission:)),
                        newCards: homeData.recentlyUpdatedData.flatMap(GameCard.map(box:)))
     }
-    
 }

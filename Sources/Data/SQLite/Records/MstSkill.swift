@@ -14,23 +14,19 @@ public struct MstSkill {
     public let jpName: String
     public let maxLv: Int
     public let iconId: Int
-    public let name: String
+    public let name: String?
 }
 
-extension MstSkill: TableRecord {
-    public static var databaseTableName: String { "MstSkill" }
-    
-    public static let detail = hasOne(MstSkillDetail.self)
-    public static let lv = hasOne(MstSkillLv.self)
+extension MstSkill {
+    public static let skillDetail = hasOne(MstSkillDetail.self)
+    public static let skillLv = hasOne(MstSkillLv.self)
 }
 
-extension MstSkill: FetchableRecord {
-    public init(row: Row) {
-        id = row["id"]
-        type = row["type"]
-        jpName = row["jpName"]
-        maxLv = row["maxLv"]
-        iconId = row["iconId"]
-        name = row["name"]
+extension MstSkill: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.id, .type, .jpName, .maxLv, .iconId, .name]
+        return codingKeys
     }
 }
+
+extension MstSkill: FetchableRecord {}

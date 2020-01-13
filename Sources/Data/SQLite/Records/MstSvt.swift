@@ -47,65 +47,24 @@ public struct MstSvt {
     public let name: String?
 }
 
-extension MstSvt {
-    public static var servants: QueryInterfaceRequest<MstSvt> {
-        let id = Column("id")
-        return filter(id>100000 && id<9000000 && Column("collectionNo")>0)
+extension MstSvt: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.relateQuestIds, .individuality, .classPassive, .cardIds, .script, .id, .baseSvtId, .jpName, .ruby, .battleName, .classId, .type, .limitMax, .rewardLv, .friendshipId, .maxFriendshipRank, .genderType, .attri, .combineSkillId, .combineLimitId, .sellQp, .sellMana, .sellRarePri, .expType, .combineMaterialId, .cost, .battleSize, .starRate, .deathRate, .attackAttri, .illustratorId, .cvId, .collectionNo, .materialStoryPriority, .flag, .name]
+        return codingKeys
     }
-    
-    public static var crafts: QueryInterfaceRequest<MstSvt> {
-       return filter(Column("type")==6 && Column("collectionNo")>0)
-   }
-    
-    public static var exps: QueryInterfaceRequest<MstSvt> {
-        return filter(Column("type")==3)
-    }
-}
-
-extension MstSvt: TableRecord {
-    public static var databaseTableName: String { "MstSvt" }
-    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("collectionNo"), Column("name"), Column("jpName"), Column("classId")]
-    
-    public static let svtLimit = hasOne(MstSvtLimit.self)
 }
 
 extension MstSvt: FetchableRecord {
-    public init(row: Row) {
-        relateQuestIds = row["relateQuestIds"]
-        individuality = row["individuality"]
-        classPassive = row["classPassive"]
-        cardIds = row["cardIds"]
-        script = row["script"]
-        id = row["id"]
-        baseSvtId = row["baseSvtId"]
-        jpName = row["jpName"]
-        ruby = row["ruby"]
-        battleName = row["battleName"]
-        classId = row["classId"]
-        type = row["type"]
-        limitMax = row["limitMax"]
-        rewardLv = row["rewardLv"]
-        friendshipId = row["friendshipId"]
-        maxFriendshipRank = row["maxFriendshipRank"]
-        genderType = row["genderType"]
-        attri = row["attri"]
-        combineSkillId = row["combineSkillId"]
-        combineLimitId = row["combineLimitId"]
-        sellQp = row["sellQp"]
-        sellMana = row["sellMana"]
-        sellRarePri = row["sellRarePri"]
-        expType = row["expType"]
-        combineMaterialId = row["combineMaterialId"]
-        cost = row["cost"]
-        battleSize = row["battleSize"]
-        starRate = row["starRate"]
-        deathRate = row["deathRate"]
-        attackAttri = row["attackAttri"]
-        illustratorId = row["illustratorId"]
-        cvId = row["cvId"]
-        collectionNo = row["collectionNo"]
-        materialStoryPriority = row["materialStoryPriority"]
-        flag = row["flag"]
-        name = row["name"]
+    enum Columns {
+        static let id = Column(CodingKeys.id)
+        static let collectionNo = Column(CodingKeys.collectionNo)
+        static let type = Column(CodingKeys.type)
+        static let classPassive = Column(CodingKeys.classPassive)
     }
+}
+
+// MARK: - Foreign Keys
+
+extension MstSvt {
+    public static let svtLimit = hasOne(MstSvtLimit.self)
 }

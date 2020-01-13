@@ -1,12 +1,12 @@
 //
 //  MooncellAPI.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/4.
 //
 
-import UIKit
 import Moya
+import UIKit
 
 public enum MooncellAPI {
     case home
@@ -17,19 +17,19 @@ extension MooncellAPI: TargetType {
     public var baseURL: URL {
         URL(string: "https://fgo.wiki")!
     }
-    
+
     public var path: String {
         "/index.php"
     }
-    
+
     public var method: Moya.Method {
         .get
     }
-    
+
     public var sampleData: Data {
         Data()
     }
-    
+
     public var task: Task {
         var title: String
         switch self {
@@ -38,11 +38,10 @@ extension MooncellAPI: TargetType {
         case .eventList:
             title = "活动一览"
         }
-        return .requestParameters(parameters: ["title": title , "mobileaction": "toggle_view_desktop"], encoding: URLEncoding.queryString)
+        return .requestParameters(parameters: ["title": title, "mobileaction": "toggle_view_desktop"], encoding: URLEncoding.queryString)
     }
-    
-    public var headers: [String : String]? {
-        return ["User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS \(UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_")) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]
+
+    public var headers: [String: String]? {
+        ["User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS \(UIDevice.current.systemVersion.replacingOccurrences(of: ".", with: "_")) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"]
     }
-  
 }

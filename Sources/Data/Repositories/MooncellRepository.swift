@@ -1,32 +1,31 @@
 //
 //  MooncellRepository.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/8.
 //
 
+import Domain
 import Foundation
 import RxSwift
-import Domain
 
 public class DefaultMooncellRepository: MooncellRepository {
-    
     private let network: MooncellNetwork
-    
+
     private var isDirtyHomeCache = true
-    
+
     private var cache: [String: Any] = [:]
-    
+
     private var fetchHomeDataTriggerSubject = PublishSubject<Void>()
-    
+
     private var fetchHomeDataSubject: Observable<[GameRecentData]>?
-    
+
     public init(network: MooncellNetwork) {
         self.network = network
     }
-    
+
     public func fetchHomeData(targetSource source: GameSourceType) -> Single<GameRecentData> {
-        return Single<GameRecentData>.create { [weak self] single in
+        Single<GameRecentData>.create { [weak self] single in
             guard let self = self else {
                 fatalError("self deinted.")
             }
@@ -39,7 +38,7 @@ public class DefaultMooncellRepository: MooncellRepository {
             }
             let task = self.network.homeData { result in
                 switch result {
-                case .success(let homeData):
+                case let .success(homeData):
                     let cnData = GameRecentData.map(homeData: homeData.cn)
                     let jpData = GameRecentData.map(homeData: homeData.jp)
                     self.cache[GameSourceType.CN.rawValue] = cnData
@@ -47,7 +46,7 @@ public class DefaultMooncellRepository: MooncellRepository {
                     let data = source == .CN ? cnData : jpData
                     self.isDirtyHomeCache = false
                     single(.success(data))
-                case .failure(let error):
+                case let .failure(error):
                     single(.error(error))
                 }
             }
@@ -56,18 +55,18 @@ public class DefaultMooncellRepository: MooncellRepository {
             }
         }
     }
-    
+
     public func fetchEventList() -> Single<[GameEventDetail]> {
-        return Single<[GameEventDetail]>.create { [weak self] single in
+        Single<[GameEventDetail]>.create { [weak self] single in
             guard let self = self else {
                 fatalError("self deinted.")
             }
             let task = self.network.eventList { result in
                 switch result {
-                case .success(let events):
+                case let .success(events):
                     let gameEvent = events.map(GameEventDetail.map(item:))
                     single(.success(gameEvent))
-                case .failure(let error):
+                case let .failure(error):
                     single(.error(error))
                 }
             }
@@ -76,10 +75,8 @@ public class DefaultMooncellRepository: MooncellRepository {
             }
         }
     }
-    
+
     public func refreshHome() {
         isDirtyHomeCache = true
     }
 }
-
-

@@ -23,26 +23,23 @@ public struct MstSvtTreasureDevice {
     public let cardId: Int
 }
 
-extension MstSvtTreasureDevice: TableRecord {
-    public static var databaseTableName: String { "MstSvtTreasureDevice" }
-    
+extension MstSvtTreasureDevice {
     public static let treasureDevice = hasOne(MstTreasureDevice.self)
-    public static let quest = hasOne(MstQuest.self, key: "quest", using: ForeignKey(["id"], to: ["condQuestId"]))
+    public static let quest = hasOne(MstQuest.self, using: ForeignKey(["id"], to: ["condQuestId"]))
+}
+
+extension MstSvtTreasureDevice: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.damage, .strengthStatus, .svtId, .num, .priority, .flag, .treasureDeviceId, .condQuestId, .condQuestPhase, .condLv, .condFriendshipRank, .cardId]
+        return codingKeys
+    }
 }
 
 extension MstSvtTreasureDevice: FetchableRecord {
-    public init(row: Row) {
-        damage = row["damage"]
-        strengthStatus = row["strengthStatus"]
-        svtId = row["svtId"]
-        num = row["num"]
-        priority = row["priority"]
-        flag = row["flag"]
-        treasureDeviceId = row["treasureDeviceId"]
-        condQuestId = row["condQuestId"]
-        condQuestPhase = row["condQuestPhase"]
-        condLv = row["condLv"]
-        condFriendshipRank = row["condFriendshipRank"]
-        cardId = row["cardId"]
+    enum Columns {
+        static let svtId = Column(CodingKeys.svtId)
+        static let strengthStatus = Column(CodingKeys.strengthStatus)
+        static let flag = Column(CodingKeys.flag)
+        static let num = Column(CodingKeys.num)
     }
 }

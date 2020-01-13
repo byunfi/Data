@@ -16,16 +16,11 @@ public struct MstCombineLimit {
     public let qp: Int
 }
 
-extension MstCombineLimit: TableRecord {
-    public static var databaseTableName: String { "MstCombineLimit" }
-}
-
-extension MstCombineLimit: FetchableRecord {
-    public init(row: Row) {
-        itemIds = row["itemIds"]
-        itemNums = row["itemNums"]
-        id = row["id"]
-        svtLimit = row["svtLimit"]
-        qp = row["qp"]
+extension MstCombineLimit: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.itemIds, .itemNums, .id, .svtLimit, .qp]
+        return codingKeys
     }
 }
+
+extension MstCombineLimit: FetchableRecord {}

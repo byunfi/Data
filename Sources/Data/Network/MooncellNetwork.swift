@@ -1,24 +1,24 @@
 //
 //  MooncellNetwork.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/8.
 //
 
-import Foundation
 import Domain
+import Foundation
 import Moya
 
 public struct MooncellNetwork {
     private let provider = MoyaProvider<MooncellAPI>()
-    
+
     public func homeData(completion: @escaping (Result<MCHomeSourceData, MoyaError>) -> Void) -> Cancellable {
-        return provider.request(.home) { result in
+        provider.request(.home) { result in
             let newResult = result.map { response -> MCHomeSourceData in
                 guard let parser = try? MooncellHomeParser(response.data) else {
                     fatalError("Cannot decode Mooncell page: <首页>.")
                 }
-                
+
                 func parseData(targetType: MooncellHomeParser.SourceType) -> MCHomeData {
                     let newCards = parser.parse(in: .newCards, target: targetType)
                     let events = parser.parse(in: .events, target: targetType)
@@ -38,7 +38,7 @@ public struct MooncellNetwork {
             completion(newResult)
         }
     }
-    
+
     public func eventList(completion: @escaping (Result<[MCEventListItem], MoyaError>) -> Void) -> Cancellable {
         provider.request(.eventList) { result in
             let newResult = result.map { response -> [MCEventListItem] in

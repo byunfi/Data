@@ -1,12 +1,12 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/8.
 //
 
-import Foundation
 import Domain
+import Foundation
 
 extension GameEventDetail {
     static func map(item: MCEventListItem) -> GameEventDetail {

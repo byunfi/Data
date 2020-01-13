@@ -1,24 +1,23 @@
 //
 //  ServantRepository.swift
-//  
+//
 //
 //  Created by byunfi on 2020/1/7.
 //
 
-import Foundation
 import Domain
+import Foundation
 import RxSwift
 
 final class DefaultServantRepository: ServantRepository {
-    
-    let masterData: MasterData
+    let masterData: MasterDataLibraryManager
     let gameURLService: GameImageResourceURL
-    
-    init(masterData: MasterData, gameURLService: GameImageResourceURL) {
+
+    init(masterData: MasterDataLibraryManager, gameURLService: GameImageResourceURL) {
         self.masterData = masterData
         self.gameURLService = gameURLService
     }
-    
+
     func servantsList(name: String?,
                       genderTypes: [ServantGender],
                       policys: [ServantPolicy],
@@ -28,61 +27,71 @@ final class DefaultServantRepository: ServantRepository {
                       individualities: [ServantIndividuality],
                       joinIndividualities: Bool)
         -> Observable<[Servant]> {
-            return Observable<[Servant]>.create { [weak self] observer in
-                if let self = self {
-                    do {
-                        let servants = try self.masterData.filterServants(name: name,
-                            genderTypes: genderTypes.map { $0.columnValue },
-                            policys: policys.flatMap { $0.columnValue },
-                            personalities: personalities.map { $0.columnValue },
-                            attris: attris.map { $0.columnValue },
-                            individualities: individualities.map { $0.columnValue },
-                            classIds: classes.map { $0.columnValue },
-                            joinIndividualities: joinIndividualities)
-                            .map {
-                                Servant.map(info: $0, gameURLService: self.gameURLService)
+        Observable<[Servant]>.create { [weak self] observer in
+            if let self = self {
+                do {
+                    let servants = try self.masterData.filterServants(name: name,
+                                                                      genderTypes: genderTypes.map { $0.columnValue },
+                                                                      policys: policys.flatMap { $0.columnValue },
+                                                                      personalities: personalities.map { $0.columnValue },
+                                                                      attris: attris.map { $0.columnValue },
+                                                                      individualities: individualities.map { $0.columnValue },
+                                                                      classIds: classes.map { $0.columnValue },
+                                                                      joinIndividualities: joinIndividualities)
+                        .map {
+                            Servant.map(info: $0, gameURLService: self.gameURLService)
                         }
-                        observer.onNext(servants)
-                    } catch(let error) {
-                        observer.onError(error)
-                    }
-                    
+                    observer.onNext(servants)
+                } catch {
+                    observer.onError(error)
                 }
-                
-                return Disposables.create()
             }
+
+            return Disposables.create()
+        }
     }
-    
+
     func servantDetail(_ servantId: Int) -> Observable<ServantDetail> {
         Observable<ServantDetail>.create { [weak self] observer in
             guard let self = self else {
                 fatalError("self deinted.")
             }
             do {
-                let info = try self.masterData.servant(svtId: servantId)
+                let info = try self.masterData.servantDetail(servantId: servantId)
                 let servantDetail = ServantDetail.map(info: info, gameURLService: self.gameURLService)
                 observer.onNext(servantDetail)
-            } catch (let error) {
+            } catch {
                 observer.onError(error)
             }
-            
+
             return Disposables.create()
         }
     }
-    
-    func servantVoices(_ servantId: Int) -> Observable<[ServantVoice]> {
-        return Observable.never()
+
+    func servantVoices(_: Int) -> Observable<[ServantVoice]> {
+        // TODO: - fix
+        Observable.never()
     }
-    
-    func servantBondStories(_ servantId: Int) -> Observable<[ServantBondStory]> {
-        return Observable.never()
+
+    func servantBondStories(_: Int) -> Observable<[ServantBondStory]> {
+        // TODO: - fix
+        Observable.never()
     }
 }
 
+// MARK: - ColumnQuery
+
+protocol ColumnQuery {
+    associatedtype FieldType
+    static var fieldName: String { get }
+    var columnValue: FieldType { get }
+}
+
 extension ServantGender: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "genderType"
     }
+
     var columnValue: Int {
         switch self {
         case .男性:
@@ -96,9 +105,10 @@ extension ServantGender: ColumnQuery {
 }
 
 extension ServantPolicy: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "policy"
     }
+
     var columnValue: [Int] {
         switch self {
         case .中立:
@@ -112,9 +122,10 @@ extension ServantPolicy: ColumnQuery {
 }
 
 extension ServantPersonality: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "personality"
     }
+
     var columnValue: Int {
         switch self {
         case .善:
@@ -134,9 +145,10 @@ extension ServantPersonality: ColumnQuery {
 }
 
 extension ServantAttri: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "attri"
     }
+
     var columnValue: Int {
         switch self {
         case .人:
@@ -154,9 +166,10 @@ extension ServantAttri: ColumnQuery {
 }
 
 extension ServantIndividuality: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "individuality"
     }
+
     var columnValue: Int {
         switch self {
         case .龙:
@@ -188,9 +201,10 @@ extension ServantIndividuality: ColumnQuery {
 }
 
 extension ServantClass: ColumnQuery {
-    var fieldName: String {
+    static var fieldName: String {
         "classId"
     }
+
     var columnValue: Int {
         switch self {
         case .剑:
@@ -222,5 +236,3 @@ extension ServantClass: ColumnQuery {
         }
     }
 }
-
-

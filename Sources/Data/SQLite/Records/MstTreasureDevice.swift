@@ -9,7 +9,6 @@ import Foundation
 import GRDB
 
 public struct MstTreasureDevice {
-    public let script: String
     public let id: Int
     public let jpName: String
     public let ruby: String
@@ -19,23 +18,16 @@ public struct MstTreasureDevice {
     public let name: String
 }
 
-extension MstTreasureDevice: TableRecord {
-    public static var databaseTableName: String { "MstTreasureDevice" }
-    public static var databaseSelection: [SQLSelectable] = [Column("id"), Column("jpName"), Column("rank"), Column("maxLv"), Column("typeText"), Column("name")]
-    
-    public static let detail = hasOne(MstTreasureDeviceDetail.self)
-    public static let lv = hasOne(MstTreasureDeviceLv.self)
+extension MstTreasureDevice {
+    public static let treasureDeviceDetail = hasOne(MstTreasureDeviceDetail.self)
+    public static let treasureDeviceLv = hasOne(MstTreasureDeviceLv.self)
 }
 
-extension MstTreasureDevice: FetchableRecord {
-    public init(row: Row) {
-        script = row["script"]
-        id = row["id"]
-        jpName = row["jpName"]
-        ruby = row["ruby"]
-        rank = row["rank"]
-        maxLv = row["maxLv"]
-        typeText = row["typeText"]
-        name = row["name"]
+extension MstTreasureDevice: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.id, .jpName, .name, .typeText, .maxLv, .ruby, .rank]
+        return codingKeys
     }
 }
+
+extension MstTreasureDevice: FetchableRecord {}

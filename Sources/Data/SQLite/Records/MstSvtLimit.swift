@@ -29,29 +29,15 @@ public struct MstSvtLimit {
     public let deity: Int
 }
 
-extension MstSvtLimit: TableRecord {
-    public static var databaseTableName: String { "MstSvtLimit" }
+extension MstSvtLimit: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.svtId, .limitCount, .rarity, .lvMax, .hpBase, .hpMax, .atkBase, .atkMax, .criticalWeight, .power, .defense, .agility, .magic, .luck, .treasureDevice, .policy, .personality, .deity]
+        return codingKeys
+    }
 }
 
 extension MstSvtLimit: FetchableRecord {
-    public init(row: Row) {
-        svtId = row["svtId"]
-        limitCount = row["limitCount"]
-        rarity = row["rarity"]
-        lvMax = row["lvMax"]
-        hpBase = row["hpBase"]
-        hpMax = row["hpMax"]
-        atkBase = row["atkBase"]
-        atkMax = row["atkMax"]
-        criticalWeight = row["criticalWeight"]
-        power = row["power"]
-        defense = row["defense"]
-        agility = row["agility"]
-        magic = row["magic"]
-        luck = row["luck"]
-        treasureDevice = row["treasureDevice"]
-        policy = row["policy"]
-        personality = row["personality"]
-        deity = row["deity"]
+    enum Columns {
+        static let limitCount = Column(CodingKeys.limitCount)
     }
 }

@@ -21,24 +21,23 @@ public struct MstSvtSkill {
     public let flag: Int
 }
 
-extension MstSvtSkill: TableRecord {
-    public static var databaseTableName: String { "MstSvtSkill" }
-    
+extension MstSvtSkill {
     public static let skill = hasOne(MstSkill.self)
-    public static let quest = hasOne(MstQuest.self, key: "quest", using: ForeignKey(["id"], to: ["condQuestId"]))
+    public static let quest = hasOne(MstQuest.self, using: ForeignKey(["id"], to: ["condQuestId"]))
+}
+
+extension MstSvtSkill: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.strengthStatus, .svtId, .num, .skillId, .condQuestId, .condQuestPhase, .condLv, .condLimitCount, .eventId, .flag]
+        return codingKeys
+    }
 }
 
 extension MstSvtSkill: FetchableRecord {
-    public init(row: Row) {
-        strengthStatus = row["strengthStatus"]
-        svtId = row["svtId"]
-        num = row["num"]
-        skillId = row["skillId"]
-        condQuestId = row["condQuestId"]
-        condQuestPhase = row["condQuestPhase"]
-        condLv = row["condLv"]
-        condLimitCount = row["condLimitCount"]
-        eventId = row["eventId"]
-        flag = row["flag"]
+    enum Columns {
+        static let svtId = Column(CodingKeys.svtId)
+        static let num = Column(CodingKeys.num)
+        static let strengthStatus = Column(CodingKeys.strengthStatus)
+        static let flag = Column(CodingKeys.flag)
     }
 }

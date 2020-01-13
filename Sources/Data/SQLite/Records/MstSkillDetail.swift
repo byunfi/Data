@@ -14,14 +14,11 @@ public struct MstSkillDetail {
     public let value: [[String]]
 }
 
-extension MstSkillDetail: TableRecord {
-    public static var databaseTableName: String { "MstSkillDetail" }
-}
-
-extension MstSkillDetail: FetchableRecord {
-    public init(row: Row) {
-        id = row["id"]
-        detail = row["detail"]
-        value = row["value"]
+extension MstSkillDetail: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.id, .detail, .value]
+        return codingKeys
     }
 }
+
+extension MstSkillDetail: FetchableRecord {}

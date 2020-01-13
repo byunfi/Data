@@ -14,14 +14,11 @@ public struct MstTreasureDeviceDetail {
     public let value: [[String]]
 }
 
-extension MstTreasureDeviceDetail: TableRecord {
-    public static var databaseTableName: String { "MstTreasureDeviceDetail" }
-}
-
-extension MstTreasureDeviceDetail: FetchableRecord {
-    public init(row: Row) {
-        id = row["id"]
-        detail = row["detail"]
-        value = row["value"]
+extension MstTreasureDeviceDetail: DecodableTableRecord {
+    static var codingKeys: [CodingKey] {
+        let codingKeys: [CodingKeys] = [.id, .detail, .value]
+        return codingKeys
     }
 }
+
+extension MstTreasureDeviceDetail: FetchableRecord {}
