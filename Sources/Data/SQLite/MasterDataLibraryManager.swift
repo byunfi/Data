@@ -33,9 +33,33 @@ public struct MasterDataLibraryManager {
 }
 
 extension MasterDataLibraryManager {
+    public func svt(collectionNo: Int, type: MstSvtType) throws -> MDServantInfo? {
+        return try dbQueue.read { db in
+            let request = MstSvt
+                .all()
+                .filter(collectionNo: collectionNo)
+                .filter(type: type)
+                .limit(1)
+            return try MDServantInfo.fetchOne(db, request)
+        }
+    }
+    
+    public func svts(queries: [(collectionNo: Int, type: MstSvtType)]) throws -> [MDServantInfo?] {
+        return try dbQueue.read { db in
+            return try queries.map { collectionNo, type -> MDServantInfo? in
+                let request = MstSvt
+                    .all()
+                    .filter(collectionNo: collectionNo)
+                    .filter(type: type)
+                    .limit(1)
+                return try MDServantInfo.fetchOne(db, request)
+            }
+        }
+    }
+    
     public func servantDetail(servantId: Int) throws -> MDServantDetailInfo {
         try dbQueue.read { db in
-            let servant = try MDServantInfo.All().filter(key: servantId).fetchOne(db)!
+            let servant = try MDServantInfo.all().filter(key: servantId).fetchOne(db)!
             let treasureDevices = try MDTreasureDeviceInfo.filter(servantId: servantId).fetchAll(db)
             let skills = try MDServantSkillInfo.filter(servantId: servantId).fetchAll(db)
             let classPassives = try self.fetchServantClassPassives(db: db, servantId: servantId)
@@ -48,7 +72,7 @@ extension MasterDataLibraryManager {
         let orders = orders.isEmpty ? [MstSvt.Columns.collectionNo] : orders
 
         let request = MDServantInfo
-            .All()
+            .all()
             .filter(condition ?? true)
             .order(orders)
 
@@ -140,7 +164,7 @@ extension MDServantClassPassiveInfo {
 }
 
 extension MDServantInfo {
-    static func All() -> QueryInterfaceRequest<Self> {
+    static func all() -> QueryInterfaceRequest<Self> {
         let svtlimitRequest = MstSvt.svtLimit
             .select(MstSvtLimitLite.databaseSelection)
             .filter(limitCount: 0)
@@ -210,15 +234,17 @@ extension DerivableRequest where RowDecoder == MstSvt {
     func filter(type: MstSvtType) -> Self {
         switch type {
         case .servant:
-            return filter(MstSvt.Columns.id > 100_000
-                && MstSvt.Columns.id < 9_000_000
-                && MstSvt.Columns.collectionNo > 0)
+            return filter(MstSvt.Columns.type == 1 && MstSvt.Columns.collectionNo != 0 || MstSvt.Columns.id == 800100)
         case .craftEssence:
             return filter(MstSvt.Columns.type == 6
-                && MstSvt.Columns.collectionNo > 0)
+                && MstSvt.Columns.collectionNo != 0)
         case .experienceCard:
             return filter(MstSvt.Columns.type == 3)
         }
+    }
+    
+    func filter(collectionNo: Int) -> Self {
+        return filter(MstSvt.Columns.collectionNo == collectionNo)
     }
 }
 
@@ -244,6 +270,6 @@ extension DerivableRequest where RowDecoder == MstSvtLimit {
     }
 }
 
-enum MstSvtType {
+public enum MstSvtType {
     case servant, craftEssence, experienceCard
 }
